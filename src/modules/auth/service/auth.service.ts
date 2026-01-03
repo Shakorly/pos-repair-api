@@ -3,12 +3,16 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../users/services/user.service';
 import { LoginDto } from '../dto/login.dto';
 import * as bcrypt from 'bcrypt';
-
+import { RegisterDto } from '../dto/register.dto';
+import { UserRole } from '../../../common/enums/user-role.enum';
 
 @Injectable()
 export class AuthService {
   constructor(
+    // user data access
     private usersService: UsersService,
+
+    // toke createion
     private jwtService: JwtService,
   ) {}
 
@@ -46,5 +50,17 @@ export class AuthService {
         role: user.role,
       },
     };
+  }
+
+  async register(registerDto: RegisterDto) {
+    const user = await this.usersService.create({
+      ...registerDto,
+      role: UserRole.TECHNICIAN,
+    });
+
+    return this.login({
+      email: user.email,
+      password: registerDto.password,
+    });
   }
 }
