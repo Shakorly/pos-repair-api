@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private configService: ConfigService) {
     const secret = configService.get<string>('JWT_SECRET');
-
+    
     if (!secret) {
       throw new Error('JWT_SECRET is not defined in environment variables');
     }
@@ -15,12 +15,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: secret, // ← Now TypeScript knows it's definitely a string!
+      secretOrKey: secret,
     });
   }
 
   async validate(payload: any) {
-    return {
+    return { 
       userId: payload.sub,
       role: payload.role,
     };
