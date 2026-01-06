@@ -1,51 +1,60 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
+import { 
+  Controller, 
+  Get, 
+  Post, 
+  Body, 
+  Patch, 
+  Param, 
   Delete,
-  HttpCode,
-  HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from '../services/user.service';
 import { CreateUserDto, UpdateUserDto } from '../dto';
+import { JwtAuthGuard, RolesGaurd  } from '../../../common/guards';
+import { Roles, CurrentUser } from '../../../common/decorators';
+import { UserRole } from '../../../common/enums';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createUserDto: CreateUserDto) {
-    const user = await this.usersService.create(createUserDto);
-
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+  @UseGuards(JwtAuthGuard, RolesGaurd )
+  @Roles(UserRole.Admin)
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
   }
 
   @Get()
-  async findAll() {
-    return await this.usersService.findAll();
+  @UseGuards(JwtAuthGuard, RolesGaurd )
+  @Roles(UserRole.Admin)
+  findAll() {
+    return this.usersService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.usersService.findOne(id);
+  @UseGuards(JwtAuthGuard)
+  findOne(
+    @Param('id') id: string,
+    @CurrentUser() user: { userId: string; role: string },
+  ) {
+    return this.usersService.findOne({ where: { id } }, user);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const user = await this.usersService.update(id, updateUserDto);
-
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+  @UseGuards(JwtAuthGuard)
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() user: { userId: string; role: string },
+  ) {
+    return this.usersService.update(id, updateUserDto, user);
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string) {
-    await this.usersService.remove(id);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Admin)
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 }

@@ -1,2 +1,2 @@
-export * from './jwt-auto.gaurd';
+export * from './jwt-auth.gaurd';
 export * from './roles.guard'
