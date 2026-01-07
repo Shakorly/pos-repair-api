@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../services/user.service';
 import { CreateUserDto, UpdateUserDto } from '../dto';
-import { JwtAuthGuard, RolesGaurd  } from '../../../common/guards';
-import { Roles, CurrentUser } from '../../../common/decorators';
+import { JwtAuthGuard, RolesGuard  } from '../../../common/guards';
+import { Roles, CurrentUser } from '../../../common/decorator';
 import { UserRole } from '../../../common/enums';
 
 @Controller('users')
@@ -19,14 +19,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGaurd )
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, RolesGaurd )
+  @UseGuards(JwtAuthGuard, RolesGuard )
   @Roles(UserRole.Admin)
   findAll() {
     return this.usersService.findAll();
@@ -38,7 +38,7 @@ export class UsersController {
     @Param('id') id: string,
     @CurrentUser() user: { userId: string; role: string },
   ) {
-    return this.usersService.findOne({ where: { id } }, user);
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')
@@ -46,9 +46,9 @@ export class UsersController {
   update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @CurrentUser() user: { userId: string; role: string },
+    @CurrentUser() User: { userId: string; role: string },
   ) {
-    return this.usersService.update(id, updateUserDto, user);
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
