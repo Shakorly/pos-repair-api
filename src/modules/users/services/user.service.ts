@@ -25,7 +25,7 @@ export class UsersService {
       throw new ConflictException('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const hashedPassword = await bcrypt.hash(createUserDto.password,  10);
 
     const user = this.usersRepository.create({
       email: createUserDto.email,
@@ -35,7 +35,10 @@ export class UsersService {
       ...(createUserDto.role && { role: createUserDto.role }),
     });
 
-    return await this.usersRepository.save(user);
+    await this.usersRepository.save(user);
+
+    return this.findOne(user.id)
+    
   }
 
   async findAll(): Promise<User[]> {
@@ -101,4 +104,10 @@ export class UsersService {
       where: { email, isActive: true },
     });
   } 
+
+  async findById(id: string){
+    return this.usersRepository.findOne({
+      where: {id},
+    })
+  }
 }
