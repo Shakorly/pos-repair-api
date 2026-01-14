@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { RepairStatus } from '../../../common/enums';
 import { Terminal } from '../../terminals/entity/terminal.entity';
@@ -18,6 +19,7 @@ export class Repair {
   @Column({ unique: true })
   repairCode: string;
 
+  // TERMINAL RELATIONSHIP
   @ManyToOne(() => Terminal, { eager: true })
   @JoinColumn({ name: 'terminalId' })
   terminal: Terminal;
@@ -25,9 +27,17 @@ export class Repair {
   @Column()
   terminalId: string;
 
+  // USER RELATIONSHIPS
   @ManyToOne(() => User)
   @JoinColumn({ name: 'assignedById' })
   assignedBy: User;
+
+  @Column()
+  assignedById: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'assignedToId' })
+  assignedTo: User;
 
   @Column()
   assignedToId: string;
@@ -39,6 +49,7 @@ export class Repair {
   @Column({ nullable: true })
   qaOfficerId: string;
 
+  // STATUS & FLAGS
   @Column({
     type: 'enum',
     enum: RepairStatus,
@@ -49,6 +60,7 @@ export class Repair {
   @Column({ default: false })
   isHardToFix: boolean;
 
+  // NOTES
   @Column({ type: 'text', nullable: true })
   initialIssue: string;
 
@@ -61,6 +73,28 @@ export class Repair {
   @Column({ type: 'text', nullable: true })
   qaRemarks: string;
 
+  // TIMESTAMPS
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ nullable: true })
+  assignedAt: Date;
+
+  @Column({ nullable: true })
+  acceptedAt: Date;
+
+  @Column({ nullable: true })
+  startedAt: Date;
+
+  @Column({ nullable: true })
+  completedAt: Date;
+
+  @Column({ nullable: true })
+  pushedToQaAt: Date;
+
+  @Column({ nullable: true })
+  qaCompletedAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

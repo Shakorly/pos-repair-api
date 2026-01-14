@@ -21,11 +21,11 @@ export class RepairsService {
       RepairStatus.AWAITING_REPAIR, // Tech accepts
     ],
     [RepairStatus.AWAITING_REPAIR]: [
-      RepairStatus.IN_REPAIR,   // Tech starts work
+      RepairStatus.IN_REPAIR, // Tech starts work
       RepairStatus.HARD_TO_FIX, // Tech marks difficult
     ],
     [RepairStatus.IN_REPAIR]: [
-      RepairStatus.PENDING_QA,  // Tech completes repair
+      RepairStatus.PENDING_QA, // Tech completes repair
       RepairStatus.HARD_TO_FIX, // Tech gives up
     ],
     [RepairStatus.HARD_TO_FIX]: [
@@ -170,9 +170,7 @@ export class RepairsService {
     });
 
     if (!repair) {
-      throw new NotFoundException(
-        `Repair with code "${repairCode}" not found`,
-      );
+      throw new NotFoundException(`Repair with code "${repairCode}" not found`);
     }
 
     return repair;
@@ -235,27 +233,31 @@ export class RepairsService {
    * Get technician dashboard stats
    */
   async getTechnicianStats(technicianId: string) {
-    const [
-      pendingAcceptance,
-      awaitingRepair,
-      inRepair,
-      pendingQa,
-      total,
-    ] = await Promise.all([
-      this.repairsRepository.count({
-        where: { assignedToId: technicianId, status: RepairStatus.PENDING_ACCEPTANCE },
-      }),
-      this.repairsRepository.count({
-        where: { assignedToId: technicianId, status: RepairStatus.AWAITING_REPAIR },
-      }),
-      this.repairsRepository.count({
-        where: { assignedToId: technicianId, status: RepairStatus.IN_REPAIR },
-      }),
-      this.repairsRepository.count({
-        where: { assignedToId: technicianId, status: RepairStatus.PENDING_QA },
-      }),
-      this.getTechnicianActiveRepairCount(technicianId),
-    ]);
+    const [pendingAcceptance, awaitingRepair, inRepair, pendingQa, total] =
+      await Promise.all([
+        this.repairsRepository.count({
+          where: {
+            assignedToId: technicianId,
+            status: RepairStatus.PENDING_ACCEPTANCE,
+          },
+        }),
+        this.repairsRepository.count({
+          where: {
+            assignedToId: technicianId,
+            status: RepairStatus.AWAITING_REPAIR,
+          },
+        }),
+        this.repairsRepository.count({
+          where: { assignedToId: technicianId, status: RepairStatus.IN_REPAIR },
+        }),
+        this.repairsRepository.count({
+          where: {
+            assignedToId: technicianId,
+            status: RepairStatus.PENDING_QA,
+          },
+        }),
+        this.getTechnicianActiveRepairCount(technicianId),
+      ]);
 
     return {
       pendingAcceptance,
